@@ -383,7 +383,7 @@ function changeQty(id, size, delta) {
 }
 
 // ===== WHATSAPP CHECKOUT =====
-const WHATSAPP_NUMBER = '34601904823';
+const WHATSAPP_NUMBER = '573104383174';
 
 function sendToWhatsApp() {
   const cart = getCart();
