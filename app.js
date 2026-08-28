@@ -469,7 +469,7 @@ function sendToWhatsApp() {
   let msg = '*Nuevo pedido - Nike Store*\n\n';
   msg += '*Productos:*\n';
   cart.forEach(item => {
-    msg += `• ${item.name} (Color: ${item.colores[0]}, Talla ${item.size}) x${item.qty} — ${(item.price * item.qty).toFixed(2)} €\n`;
+    msg += `• ${item.name} (Ref: ${item.id}, Color: ${item.colores[0]}, Talla ${item.size}) x${item.qty} — ${(item.price * item.qty).toFixed(2)} €\n`;
   });
 
   msg += `\n*Total: ${getCartTotal().toFixed(2)} €*\n`;
