@@ -61,27 +61,21 @@
         <label for="address">Dirección</label>
         <input type="text" id="address" placeholder="Calle, número, piso">
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="city">Ciudad</label>
-          <input type="text" id="city" placeholder="Madrid">
-        </div>
-        <div class="form-group">
-          <label for="zip">Código postal</label>
-          <input type="text" id="zip" placeholder="28001">
-        </div>
+      <div class="form-group">
+        <label for="department">Departamento</label>
+        <select id="department">
+          <option value="">Selecciona un departamento</option>
+        </select>
       </div>
       <div class="form-group">
-        <label for="province">Provincia</label>
-        <select id="province">
-          <option value="">Seleccionar</option>
-          <option>Madrid</option>
-          <option>Barcelona</option>
-          <option>Valencia</option>
-          <option>Sevilla</option>
-          <option>Bilbao</option>
-          <option>Otra</option>
+        <label for="city">Ciudad</label>
+        <select id="city" disabled>
+          <option value="">Primero selecciona un departamento</option>
         </select>
+      </div>
+      <div class="form-group">
+        <label for="zip">Código postal</label>
+        <input type="text" id="zip" placeholder="Código postal">
       </div>
     </div>
 

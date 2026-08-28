@@ -397,9 +397,9 @@ function sendToWhatsApp() {
   const address = document.getElementById('address').value.trim();
   const city = document.getElementById('city').value.trim();
   const zip = document.getElementById('zip').value.trim();
-  const province = document.getElementById('province').value;
+  const department = document.getElementById('department').value;
 
-  if (!name || !address || !city || !zip || !province || !email) {
+  if (!name || !address || !city || !zip || !department || !email) {
     showToast('Por favor, completa todos los campos de envío');
     return;
   }
@@ -417,7 +417,7 @@ function sendToWhatsApp() {
   msg += `• Dirección: ${address}\n`;
   msg += `• Ciudad: ${city}\n`;
   msg += `• CP: ${zip}\n`;
-  msg += `• Provincia: ${province}\n`;
+  msg += `• Departamento: ${department}\n`;
 
   const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
   window.open(url, '_blank');
@@ -702,6 +702,36 @@ function handleStickySearch(e) {
   return false;
 }
 
+// ===== SHIPPING LOCATION (Colombia) =====
+const COLOMBIA_API_URL = 'https://raw.githubusercontent.com/marcovega/colombia-json/master/colombia.json';
+let departments = [];
+
+async function initShippingLocation() {
+  const departmentEl = document.getElementById('department');
+  const cityEl = document.getElementById('city');
+  if (!departmentEl || !cityEl) return;
+
+  try {
+    const res = await fetch(COLOMBIA_API_URL);
+    if (!res.ok) throw new Error('Error al cargar departamentos');
+    departments = await res.json();
+
+    departmentEl.innerHTML = '<option value="">Selecciona un departamento</option>' +
+      departments.map(d => `<option value="${d.departamento}">${d.departamento}</option>`).join('');
+  } catch (e) {
+    console.warn('No se pudieron cargar los departamentos:', e.message);
+  }
+
+  departmentEl.addEventListener('change', () => {
+    const selected = departments.find(d => d.departamento === departmentEl.value);
+    cityEl.disabled = !selected;
+    cityEl.innerHTML = selected && selected.ciudades && selected.ciudades.length
+      ? '<option value="">Selecciona una ciudad</option>' +
+        selected.ciudades.map(c => `<option value="${c}">${c}</option>`).join('')
+      : '<option value="">No hay ciudades disponibles</option>';
+  });
+}
+
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', async () => {
   await fetchProducts();
@@ -723,5 +753,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (document.getElementById('checkout-items')) {
     renderCheckout();
+    initShippingLocation();
   }
 });
