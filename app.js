@@ -69,88 +69,26 @@ function parseCSV(text) {
   }).filter(p => p.id && p.name);
 }
 
-// ===== PARSE EXCEL (SheetJS) =====
-function parseExcel(arrayBuffer) {
-  const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-  const sheetName = workbook.SheetNames[0];
-  const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-
-  return rows.map(row => {
-    const colores = String(row.colores || row.Colors || '').split('|').filter(c => c.trim());
-    const fotosRaw = String(row.fotos || row.img || row.Fotos || row.Images || '').split(';').filter(f => f.trim());
-    const fotos = fotosRaw.map(group => group.split('|').filter(u => u.trim()));
-
-    if (colores.length === 0 && fotos.length > 0) colores.push('Único');
-
-    return {
-      id: parseInt(row.id) || 0,
-      name: row.nombre || row.name || row.Name || row.Nombre || '',
-      category: row.categoria || row.category || row.Category || row.Categoria || '',
-      type: row.tipo || row.type || row.Type || row.Tipo || '',
-      price: parseFloat(row.precio || row.price || row.Price || row.Precio) || 0,
-      oldPrice: parseFloat(row.precio_old || row.old_price || row.OldPrice) || null,
-      badge: row.badge || row.Badge || null,
-      colores,
-      fotos,
-    };
-  }).filter(p => p.id && p.name);
-}
-
 // ===== FETCH PRODUCTS =====
 async function fetchProducts() {
-  // 1. Intentar Excel local
   try {
-    const res = await fetch('productos.xlsx');
+    console.log('Intentando cargar desde Google Sheets...');
+    const res = await fetch(SHEET_CSV_URL);
     if (res.ok) {
-      const buffer = await res.arrayBuffer();
-      const parsed = parseExcel(buffer);
+      const text = await res.text();
+      const parsed = parseCSV(text);
       if (parsed.length > 0) {
-        console.log(`Productos cargados desde productos.xlsx: ${parsed.length}`);
+        console.log(`Productos cargados desde Sheet: ${parsed.length}`);
         products = parsed;
         return;
       }
     }
   } catch (e) {
-    console.warn('No se pudo cargar productos.xlsx:', e.message);
+    console.warn('No se pudo cargar desde Sheet:', e.message);
   }
 
-  // 2. Intentar JSON local
-  try {
-    const res = await fetch('productos.json');
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
-        console.log(`Productos cargados desde productos.json: ${data.length}`);
-        products = data;
-        return;
-      }
-    }
-  } catch (e) {
-    console.warn('No se pudo cargar productos.json:', e.message);
-  }
-
-  // 3. Intentar Google Sheets
-  if (SHEET_CSV_URL) {
-    try {
-      console.log('Intentando cargar desde Google Sheets...');
-      const res = await fetch(SHEET_CSV_URL);
-      if (res.ok) {
-        const text = await res.text();
-        const parsed = parseCSV(text);
-        if (parsed.length > 0) {
-          console.log(`Productos cargados desde Sheet: ${parsed.length}`);
-          products = parsed;
-          return;
-        }
-      }
-    } catch (e) {
-      console.warn('No se pudo cargar desde Sheet:', e.message);
-    }
-  }
-
-  // 4. Fallback: datos hardcodeados
-  console.log('Usando datos de ejemplo');
-  products = FALLBACK_PRODUCTS;
+  console.log('No se pudieron cargar los productos');
+  products = [];
 }
 
 // ===== CART =====
